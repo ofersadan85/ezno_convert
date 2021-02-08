@@ -1,2 +1,1 @@
-from .convert import convert_one, app_batch_convert
-from .enums import WORD, PPT, XL
+from .convert import convert_one, BatchConverter, WORDConverter, PPTConverter, XLConverter, WORD, PPT, XL
