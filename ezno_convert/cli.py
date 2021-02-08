@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Sequence, Text
 
 from ezno_convert.common import VERSION, DATE_FORMAT
-from ezno_convert.convert import app_batch_convert as batch
+from ezno_convert.convert import WORDConverter, PPTConverter, XLConverter
 from ezno_convert.enums import WORD, PPT, XL
 
 
@@ -107,24 +107,16 @@ class CommandLineInterface(ArgumentParser):
     def run_converters(self, args: Optional[Sequence[Text]] = None):
         opt = self.parse_args(args)
         kwargs = dict(dst=opt.output, recursive=opt.recursive, date_fmt=opt.dateformat)
-        word_gen = batch(app=WORD, src=opt.word, target=getattr(WORD, opt.converter, None), **kwargs)
-        pp_gen = batch(app=PPT, src=opt.powerpoint, target=getattr(PPT, opt.converter, None), **kwargs)
-        xl_gen = batch(app=XL, src=opt.excel, target=getattr(XL, opt.converter, None), sheets=opt.sheet, **kwargs)
-
-        # FIXME - use wrap execution in progressbar
 
         if opt.word:
-            print('Converting Word Documents:')
-            for total, i, result in word_gen:
-                print(total, i, result)
+            word_gen = WORDConverter(src=opt.word, target=getattr(WORD, opt.converter, None), **kwargs)
+            word_gen.execute_all(True)
         if opt.powerpoint:
-            print('Converting PowerPoint Presentations:')
-            for total, i, result in pp_gen:
-                print(total, i, result)
+            pp_gen = PPTConverter(src=opt.powerpoint, target=getattr(PPT, opt.converter, None), **kwargs)
+            pp_gen.execute_all(True)
         if opt.excel:
-            print('Converting Excel Spreadsheets:')
-            for total, i, result in xl_gen:
-                print(total, i, result)
+            xl_gen = XLConverter(src=opt.excel, target=getattr(XL, opt.converter, None), sheets=opt.sheet, **kwargs)
+            xl_gen.execute_all(True)
 
 
 def main():

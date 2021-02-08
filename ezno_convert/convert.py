@@ -143,6 +143,7 @@ class BatchConverter:
             self.app_object.Quit()
 
     def execute_all(self, output: bool = False) -> list[Optional[Path]]:
+        # TODO - use wrap execution in progressbar
         all_results = []
         for result in self:
             all_results.append(result)
