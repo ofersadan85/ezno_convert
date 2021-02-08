@@ -6,11 +6,11 @@
 
 Convert office files quickly and easily through CLI, GUI, or Windows Explorer context menu
 
-### ezno_convert = Easy Native Office Convert
+### ezno-convert = Easy Native Office Convert
 * *EZ* - Because it's so easy to convert large numbers of files
 * *Native* - Because unlike other conversion programs, we convert using Microsoft Office's own COM API, which means it's your office programs doing their native job (instead of an external program that can mess up formatting, for example)
 
-## What's good / bad about ezno_convert?
+## What's good / bad about ezno-convert?
 
 #### Pros:
 - Free and open source, no ads, no premium charges
@@ -34,7 +34,7 @@ Convert office files quickly and easily through CLI, GUI, or Windows Explorer co
 
 - Option 2: Install as a python package 
     
-      pip install ezno_convert
+      pip install -U ezno-convert
   [![ezno_convert on pypi](https://img.shields.io/pypi/v/ezno_convert)](https://pypi.org/project/ezno_convert/)
   ![](https://img.shields.io/pypi/wheel/ezno_convert)
   ![](https://img.shields.io/pypi/pyversions/ezno_convert)
@@ -44,7 +44,7 @@ Convert office files quickly and easily through CLI, GUI, or Windows Explorer co
 
 - Option 3: Install as a python package with GUI included
 
-      pip install ezno_convert[gui]
+      pip install -U ezno-convert[gui]
 
 ## Usage
 
@@ -56,7 +56,7 @@ If you installed using out [latest installer]() you can now right click with you
 
 Clicking on it will open the main GUI with some options:
 
-- Image
+![GUI Screenshot](images/gui-example.png)
 
 To convert all the files in the folder to the default PDF option, simply click the `Start Converting...` button. Each output file will be saved in the same location as the file being converted.
 
@@ -139,7 +139,7 @@ Excel only options:
 
 ### Python package
 
-If you installed through `pip install ezno_convert` usage is pretty straightforward. Here are some examples:
+If you installed through `pip install ezno-convert` usage is pretty straightforward. Here are some examples:
 
     from ezno_convert import WORD, PPT, XL, convert_one, WORDConverter, PPTConverter
 
