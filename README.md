@@ -140,7 +140,7 @@ Excel only options:
 
 If you installed through `pip install ezno_convert` usage is pretty straightforward. Here are some examples:
 
-    from ezno_convert import WORD, PPT, XL, convert_one, app_batch_convert
+    from ezno_convert import WORD, PPT, XL, convert_one, WORDConverter, PPTConverter
 
     # Convert one Word file to pdf
     convert_one('path\to\source.docx', 'path\to\output.pdf')
@@ -152,16 +152,22 @@ If you installed through `pip install ezno_convert` usage is pretty straightforw
     convert_one('path\to\workbook.xlsx', target=XL.XPS, sheets=('name of sheet', 'another sheet'))
 
     # Convert Word files to plain text, save to specific location, non-recursively
-    app_batch_convert(WORD, 'path\to\folder\', dst='path\to\output\', target=WORD.Text, recursive=False)
+    WORDConverter(WORD, 'path\to\folder\', dst='path\to\output\', target=WORD.Text, recursive=False)
 
     # Convert all PowerPoint files in a folder to JPG, save in same place of source files, icluding recursive search in sub-folders
-    app_batch_convert(PPT, 'path\to\folder\', target=PPT.JPG, recursive=True)
+    PPTConverter(PPT, 'path\to\folder\', target=PPT.JPG, recursive=True)
 
-Note that unlike `convert_one`, if you use `app_batch_convert` the conversion **does not** start immediately as this function returns a generator. Iterate through it to actually preform the conversions. For example:
+Note that unlike `convert_one`, if you use instances of `BatchConverter` like `WORDConverter` the conversion **does not** start immediately. Iterate through it to actually preform the conversions. For example:
 
-    for total, current, result in app_batch_convert(WORD, 'path\to\folder\'):
-        print(f'{current} out of {total} documents ({result})')
+    converter = PPTConverter('path\to\folder\')
+    for i, result in enumerate(converter):
+        print(f'Converted {i} out of {len(converter)} documents ({result})')
 
+Or execute all conversions in one go:
+
+    results = converter.execute_all()
+
+In both cases, the `result` or `results` returned are the paths of created files.
     
 
 ## Supported formats
