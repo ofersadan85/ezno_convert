@@ -1,4 +1,5 @@
-# ezno_convert
+![](images/ezno-banner-wide.png)
+
 [![Latest Release](https://img.shields.io/github/v/release/ofersadan85/ezno_convert)](https://github.com/ofersadan85/ezno_convert/releases/latest)
 [![ezno_convert on pypi](https://img.shields.io/pypi/v/ezno_convert)](https://pypi.org/project/ezno_convert/)
 [![MIT License](https://img.shields.io/github/license/ofersadan85/ezno_convert)](LICENSE)
@@ -17,7 +18,7 @@ Convert office files quickly and easily through CLI, GUI, or Windows Explorer co
 - Simple GUI and CLI interfaces, easy to run through context menu
 
 #### Cons:
-- Not scalable, the COM API isn't build for speed and takes up CPU and memory resources to open the Office programs in the background. Probably best to convert less than 100-200 documents at a time.
+- Not scalable, the COM API isn't built for speed and takes up CPU and memory resources to open the Office programs in the background. Probably best to convert less than 100-200 documents at a time.
 
 
 ## Installation

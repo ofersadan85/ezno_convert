@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Collection
 
-VERSION = '0.0.2dev'
+VERSION = '0.0.3dev'
 DATE_FORMAT = '%Y%m%d-%H%M%S'
 
 

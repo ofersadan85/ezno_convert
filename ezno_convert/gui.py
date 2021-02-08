@@ -34,7 +34,8 @@ class Progress(wx.ProgressDialog):
 
 class MainFrame(wx.Frame):
     def __init__(self):
-        super().__init__(None, size=(500, 400), title=f'Easy Native Office Convert v{VERSION}')
+        style = wx.MINIMIZE_BOX | wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.CLIP_CHILDREN
+        super().__init__(None, size=(500, 400), title=f'Easy Native Office Convert v{VERSION}', style=style)
         word_choices = [item for item in dir(WORD) if not item.startswith('_')]
         ppt_choices = [item for item in dir(PPT) if not item.startswith('_')]
         xl_choices = [item for item in dir(XL) if not item.startswith('_')]
@@ -72,7 +73,7 @@ class MainFrame(wx.Frame):
         self.panel.SetSizer(grid)
         self.use_location.Bind(wx.EVT_CHECKBOX, self.use_location_handler)
         self.execute.Bind(wx.EVT_BUTTON, self.validate)
-        # TODO: Set app icon
+        self.SetIcon(wx.Icon('images/ezno-icon.png'))
         # TODO: Enable selection of locations through file / directory dialogs
         # TODO: Add option to remove timestamp + warning about overwrites
         self.reset()
