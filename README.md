@@ -16,7 +16,7 @@ Convert office files quickly and easily through CLI, GUI, or Windows Explorer co
 - Uses the native Office applications, so it will *ALWAYS* keep the formatting that those programs (and users) expect.
 - Simple GUI and CLI interfaces, easy to run through context menu
 
-####Cons:
+#### Cons:
 - Not scalable, the COM API isn't build for speed and takes up CPU and memory resources to open the Office programs in the background. Probably best to convert less than 100-200 documents at a time.
 
 
@@ -156,6 +156,13 @@ If you installed through `pip install ezno_convert` usage is pretty straightforw
 
     # Convert all PowerPoint files in a folder to JPG, save in same place of source files, icluding recursive search in sub-folders
     app_batch_convert(PPT, 'path\to\folder\', target=PPT.JPG, recursive=True)
+
+Note that unlike `convert_one`, if you use `app_batch_convert` the conversion **does not** start immediately as this function returns a generator. Iterate through it to actually preform the conversions. For example:
+
+    for total, current, result in app_batch_convert(WORD, 'path\to\folder\'):
+        print(f'{current} out of {total} documents ({result})')
+
+    
 
 ## Supported formats
 

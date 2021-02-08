@@ -3,10 +3,27 @@ from pathlib import Path
 
 import wx
 
-from ezno_convert.common import DATE_FORMAT, VERSION
-from ezno_convert.convert import WORD, PPT, XL, app_batch_convert
+from ezno_convert.common import DATE_FORMAT, VERSION, multi_glob
+from ezno_convert.convert import WORD, PPT, XL
 
 PDF = 'PDF'
+
+
+# class Progress(wx.ProgressDialog):
+#     def __init__(self, word):
+#         super().__init__(title=f'Easy Native Office Convert v{VERSION}', maximum=maximum
+#         if self.word_check.GetValue():
+#             word_gen = app_batch_convert(WORD, target=getattr(WORD, self.word_fmt.GetValue(), None), **kwargs)
+#             for total, i, result in word_gen:
+#                 print(total, i, result)
+#         if self.ppt_check.GetValue():
+#             pp_gen = app_batch_convert(PPT, target=getattr(PPT, self.word_fmt.GetValue(), None), **kwargs)
+#             for total, i, result in pp_gen:
+#                 print(total, i, result)
+#         if self.xl_check.GetValue():
+#             xl_gen = app_batch_convert(XL, target=getattr(XL, self.word_fmt.GetValue(), None), **kwargs)
+#             for total, i, result in xl_gen:
+#                 print(total, i, result)
 
 
 class MainFrame(wx.Frame):
@@ -48,10 +65,8 @@ class MainFrame(wx.Frame):
         grid.Add(self.execute, pos=(10, 1), span=(1, 2), flag=wx.EXPAND)
         self.panel.SetSizer(grid)
         self.use_location.Bind(wx.EVT_CHECKBOX, self.use_location_handler)
-        self.execute.Bind(wx.EVT_BUTTON, self.validate_and_execute)
+        self.execute.Bind(wx.EVT_BUTTON, self.validate)
         # TODO: Enable selection of locations through file / directory dialogs
-        # TODO: Warning about recursive actions
-        # TODO: Confirmation dialog before start
         # TODO: Add option to remove timestamp + warning about overwrites
         self.reset()
 
@@ -68,14 +83,29 @@ class MainFrame(wx.Frame):
         self.save.Enable(not self.use_location.IsChecked())
         self.save_select.Enable(not self.use_location.IsChecked())
 
-    def validate_and_execute(self, event: wx.Event):
+    def validate(self, event: wx.Event):
         event.Skip()
+        src = Path(self.path.GetValue())
+
+        if src.is_dir():
+            total = {}
+            for app, check in zip((WORD, PPT, XL), (self.word_check, self.ppt_check, self.xl_check)):
+                extensions = app.extensions.value if check.GetValue() else ()
+                app_files = multi_glob(src, ['*' + ext for ext in extensions], self.recursive.GetValue())
+                app_name = app.app.value.split('.')[0]
+                total.update({app_name: dict(src=app_files)})
+            all_files = sum(len(files) for files in total.values())
+            if all_files > 10:
+                warning = f'This action will convert {all_files} files. Are you sure you wish to proceed?\n'
+                warning += '\n'.join(f'{len(value)} {key}' for key, value in total.items())
+                warning_dlg = wx.MessageDialog(warning, 'Large conversion warning', style=wx.YES_NO | wx.ICON_WARNING)
+                if warning_dlg.ShowModal() == wx.ID_YES:
+                    self.execute(src, dst, )
+
+    def execute(self):
         src = Path(self.path.GetValue())
         dst = None if self.use_location.GetValue() else Path(self.save.GetValue())
         kwargs = dict(src=src, dst=dst, recursive=self.recursive.GetValue(), date_fmt=DATE_FORMAT)
-
-        # FIXME - use wrap execution in progressbar
-
         if self.word_check.GetValue():
             word_gen = app_batch_convert(WORD, target=getattr(WORD, self.word_fmt.GetValue(), None), **kwargs)
             for total, i, result in word_gen:
@@ -88,6 +118,8 @@ class MainFrame(wx.Frame):
             xl_gen = app_batch_convert(XL, target=getattr(XL, self.word_fmt.GetValue(), None), **kwargs)
             for total, i, result in xl_gen:
                 print(total, i, result)
+
+
 
 
 def main():

@@ -1,5 +1,6 @@
 import enum
 import logging
+from dataclasses import dataclass
 from os import PathLike
 from pathlib import Path
 from typing import Collection, Union, Optional
@@ -56,7 +57,6 @@ def convert_one(
         target: Optional[enum_types] = None,
         date_fmt: Optional[str] = None,
         sheets: Union[Collection, bool] = False) -> Optional[Path]:
-
     src, dst = validate_paths(src, dst, date_fmt)
 
     app_opened_here = False
@@ -90,39 +90,80 @@ def convert_one(
     return next(result.parent.glob(result.name + '*'))
 
 
-def app_batch_convert(
-        app: enum.EnumMeta,
-        src: Union[Collection[PathLike], PathLike],
-        dst: Optional[PathLike] = None,
-        target: Optional[enum_types] = None,
-        recursive: bool = False,
-        date_fmt: Optional[str] = None,
-        sheets: Union[Collection, bool] = False):
+@dataclass
+class BatchConverter:
+    src: Union[Collection[PathLike], PathLike]
+    dst: Optional[PathLike] = None
+    app: Optional[enum.EnumMeta] = None
+    target: Optional[enum_types] = None
+    recursive: bool = False
+    date_fmt: Optional[str] = None
+    sheets: Union[Collection, bool] = False
 
-    if isinstance(src, (str, PathLike)):
-        src = [src]
+    def __post_init__(self):
+        self.app_object = None
 
-    files = [Path(f) for f in src if Path(f).is_file()]
-    extensions = [x if '*' in x else '*' + x for x in app.extensions.value]
-    for d in (Path(f) for f in src if Path(f).is_dir()):
-        files += multi_glob(d, extensions, recursive=recursive)
+        if isinstance(self.src, (str, PathLike)):
+            self.src = [self.src]
 
-    files = {f for f in files if not f.name.startswith('~$')}
-
-    if dst is not None and len(files) > 1:
-        dst = Path(dst)
-        if not dst.is_dir():
-            raise NotADirectoryError(f'Destination for batch conversion must be a directory (or empty) ({dst})')
-
-    if files:
-        total = len(files)
-        app_object = CreateObject(app.app.value)
-        for i, f in enumerate(files):
-            try:
-                result = convert_one(f, dst, app_object, target, date_fmt, sheets)
-            except (COMError, FileNotFoundError, NotADirectoryError, ValueError):
-                logger.exception(f'Failed to convert: {f}')
-                yield total, i + 1, None
+        if self.app is None:
+            # Try to guess app if not supplied by the extension of the first src path
+            guess_apps = [app for app in (WORD, PPT, XL) if Path(tuple(self.src)[0]).suffix in app.extensions.value]
+            if guess_apps:
+                self.app = guess_apps[0]
             else:
-                yield total, i + 1, result
-        app_object.Quit()
+                raise RuntimeError('Could not guess correct app and none was provided')
+
+        self.files = [Path(f) for f in self.src if Path(f).is_file()]
+        extensions = [x if '*' in x else '*' + x for x in self.app.extensions.value]
+        for d in (Path(f) for f in self.src if Path(f).is_dir()):
+            self.files += multi_glob(d, extensions, recursive=self.recursive)
+
+        self.files = {f for f in self.files if not f.name.startswith('~$')}
+
+        if self.dst is not None and len(self.files) > 1:
+            self.dst = Path(self.dst)
+            if not Path(self.dst).is_dir():
+                raise NotADirectoryError(f'Destination for batch conversion must be a folder (or empty) ({self.dst})')
+
+    def __len__(self):
+        return len(self.files)
+
+    def __iter__(self):
+        if self.files:
+            self.app_object = CreateObject(self.app.app.value)
+            for i, f in enumerate(self.files):
+                try:
+                    result = convert_one(f, self.dst, self.app_object, self.target, self.date_fmt, self.sheets)
+                except (COMError, FileNotFoundError, NotADirectoryError, ValueError):
+                    logger.exception(f'Failed to convert: {f}')
+                    yield None
+                else:
+                    yield result
+            self.app_object.Quit()
+
+    def execute_all(self, output: bool = False) -> list[Optional[Path]]:
+        all_results = []
+        for result in self:
+            all_results.append(result)
+            if output:
+                print(f'Success: {result}' if result else 'Conversion failed, see logs for details')
+        return all_results
+
+
+@dataclass
+class WORDConverter(BatchConverter):
+    """ Alias for BatchConverter(WORD, ...) """
+    app: enum.EnumMeta = WORD
+
+
+@dataclass
+class PPTConverter(BatchConverter):
+    """ Alias for BatchConverter(PPT, ...) """
+    app: enum.EnumMeta = PPT
+
+
+@dataclass
+class XLConverter(BatchConverter):
+    """ Alias for BatchConverter(XL, ...) """
+    app: enum.EnumMeta = XL
