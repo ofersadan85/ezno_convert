@@ -192,3 +192,17 @@ In either case, see [this guide](https://stackoverflow.com/questions/44272416/ho
 ## Contributing
 
 If you would like to contribute or even ask for new features, feel free to open an issue, or a pull request.
+
+## Warranty / Liability / Official support
+
+This project is being developed independently without affiliation with Microsoft and not supported officially by them, we provide the
+package "as-is" without any implied warranty or liability, usage is your own responsibility
+
+## Additional info
+
+Just because I like badges
+
+![code size](https://img.shields.io/github/languages/code-size/ofersadan85/ezno_convert)
+![Pypi downloads per month](https://img.shields.io/pypi/dm/ezno_convert?label=pypi%20downloads)
+![Pypi downloads per week](https://img.shields.io/pypi/dw/ezno_convert?label=pypi%20downloads)
+![Pypi downloads per day](https://img.shields.io/pypi/dd/ezno_convert?label=pypi%20downloads)
