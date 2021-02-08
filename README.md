@@ -63,25 +63,25 @@ You can change the output folder in the GUI options. The other options in the GU
 
 ### CLI
 
-Both the installer and pip package create a script called `ezno_convert.exe` that should be in your PATH (more on troubleshooting that later)
+Both the installer and pip package create a script called `eznoc.exe` that should be in your PATH (more on troubleshooting that later)
 
 The basic usage involves only one argument - a path to a file or folder. Without any additional arguments, it will be converted to PDF by default and will be saved in the same folder as the input file. For example:
 
-    ezno_convert C:\MyDocumentsFolder\
+    eznoc C:\MyDocumentsFolder\
 
 If you want all sub-folders to be included, include the `--recursive` or `-r` option
 
-    ezno_convert -r C:\MyDocumentsFolder\
+    eznoc -r C:\MyDocumentsFolder\
 
 If you want to save the output files to a different location, use `--output` or `-o`:
 
-    ezno_convert -o "C:\Output Folder" C:\MyDocumentsFolder\
+    eznoc -o "C:\Output Folder" C:\MyDocumentsFolder\
 
-You can see all the available command line options with `ezno_convert --help`:
+You can see all the available command line options with `eznoc --help`:
 
 ```
-> ezno_convert --help
-usage: ezno_convert [-h] [-o PATH] [-c TYPE] [-t] [-d DATEFORMAT] [-l] [-v] [-r]
+> eznoc --help
+usage: eznoc [-h] [-o PATH] [-c TYPE] [-t] [-d DATEFORMAT] [-l] [-v] [-r]
               [-w] [-p] [-x] [-a] [--split] [--sheet SHEET [SHEET ...]]
               PATH [PATH ...]
 
