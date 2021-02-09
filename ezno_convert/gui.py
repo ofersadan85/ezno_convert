@@ -1,5 +1,6 @@
 import logging
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 from typing import Collection, Optional
 
@@ -133,8 +134,9 @@ class MainFrame(wx.Frame):
         self.save.Enable(not self.use_location.IsChecked())
         self.save_select.Enable(not self.use_location.IsChecked())
 
-    def validate(self, event: wx.Event):
-        event.Skip()
+    def validate(self, event: Optional[wx.Event] = None):
+        if event:
+            event.Skip()
 
         date_fmt = self.date_fmt.GetValue()
         if DATE_FORMAT != date_fmt:
@@ -179,16 +181,19 @@ class MainFrame(wx.Frame):
 
 
 def main():
+    parser = ArgumentParser()
+    parser.add_argument('-p', '--path', type=Path, metavar='PATH')
+    parser.add_argument('--pdf', action='store_true')
+    args = parser.parse_args()
     app = wx.App()
     frame = MainFrame()
-
-    try:
+    if args.path and (args.path.is_file() or args.path.is_dir()):
         frame.path.SetValue(sys.argv[1])
-    except IndexError:
-        pass
-
-    frame.Show()
-    frame.Center()
+    if args.pdf:
+        frame.validate()
+    else:
+        frame.Show()
+        frame.Center()
     app.MainLoop()
 
 
