@@ -25,11 +25,13 @@ build_exe = dict(
     include_files=['images/'],
     replace_paths=[('*', '')],  # Obfuscate paths from traceback
     # include_msvcr=True,  # Not sure if needed
-    optimize=1,  # 2 fails because of numpy bug
+    excludes=['tkinter', 'numpy'],
+    optimize=2,
+    zip_include_packages='*',
+    zip_exclude_packages='',
 )
 
 setup(
-    name='ezno_convert',
     version=VERSION,
     executables=[cli, gui, context],
     options={'build_exe': build_exe}
