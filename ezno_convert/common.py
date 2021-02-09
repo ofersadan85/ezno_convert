@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Collection
 
-VERSION = '0.0.5b1'
+VERSION = '0.0.5b2'
 DATE_FORMAT = '%Y%m%d-%H%M%S'
 here = Path(sys.executable if getattr(sys, 'frozen', False) else __file__)
 script_dir = here.parent if getattr(sys, 'frozen', False) else here.parent.parent
