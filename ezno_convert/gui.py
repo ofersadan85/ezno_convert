@@ -1,12 +1,11 @@
 import logging
-import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Collection, Optional
 
 import wx
 
-from ezno_convert.common import DATE_FORMAT, VERSION
+from ezno_convert.common import DATE_FORMAT, VERSION, here
 from ezno_convert.convert import WORD, PPT, XL, BatchConverter, WORDConverter, PPTConverter, XLConverter
 
 PDF = 'PDF'
@@ -22,7 +21,7 @@ class WarningDialog(wx.MessageDialog):
 
 class ErrorDialog(wx.MessageDialog):
     def __init__(self, parent, message):
-        super().__init__(parent=parent, message=message, caption='Error!', style=wx.OK | wx.CENTER | wx.ICON_WARNING)
+        super().__init__(parent=parent, message=message, caption='Error!', style=wx.OK | wx.CENTER | wx.ICON_ERROR)
         logger.error(message)
         self.ShowModal()
 
@@ -72,7 +71,8 @@ class MainFrame(wx.Frame):
         self.date_fmt = wx.TextCtrl(self.panel, value=DATE_FORMAT)
         self.reset_btn = wx.Button(self.panel, label='Reset settings')
         self.execute_btn = wx.Button(self.panel, label='Start Converting...')
-        img = wx.Image('images/ezno-banner-wide.png', type=wx.BITMAP_TYPE_PNG).Rescale(500, 100).ConvertToBitmap()
+        img_path = str(here.parent / 'images/ezno-banner-wide.png')
+        img = wx.Image(img_path, type=wx.BITMAP_TYPE_PNG).Rescale(500, 100).ConvertToBitmap()
         img = wx.StaticBitmap(self.panel, bitmap=img)
         grid = wx.GridBagSizer(10, 10)
         grid.Add(img, pos=(0, 1), span=(1, 2), flag=wx.EXPAND)
@@ -100,7 +100,7 @@ class MainFrame(wx.Frame):
         self.save_select.Bind(wx.EVT_BUTTON, self.select_save_location)
         self.reset_btn.Bind(wx.EVT_BUTTON, self.reset)
         self.execute_btn.Bind(wx.EVT_BUTTON, self.validate)
-        self.SetIcon(wx.Icon('images/ezno-icon.png'))
+        self.SetIcon(wx.Icon(str(here.parent / 'images/ezno-icon.png')))
         self.reset()
 
     def reset(self, event: Optional[wx.Event] = None):
@@ -184,11 +184,11 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('-p', '--path', type=Path, metavar='PATH')
     parser.add_argument('--pdf', action='store_true')
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
     app = wx.App()
     frame = MainFrame()
     if args.path and (args.path.is_file() or args.path.is_dir()):
-        frame.path.SetValue(sys.argv[1])
+        frame.path.SetValue(str(args.path))
     if args.pdf:
         frame.validate()
     else:

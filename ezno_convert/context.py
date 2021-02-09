@@ -1,7 +1,8 @@
 import ctypes
 import sys
 import winreg
-from pathlib import Path
+
+from ezno_convert.common import here
 
 reg_classes = (
     'Word.Document.8',
@@ -14,7 +15,6 @@ reg_classes = (
     'Directory\\Background',
 )
 
-here = Path(sys.executable if getattr(sys, 'frozen', False) else __file__)
 gui_exe = here.with_name('eznoc-gui.exe').absolute()
 gui_with_options_cmd = str(gui_exe) + ' -p %1'
 gui_no_options_cmd = str(gui_exe) + ' --pdf -p %1'
