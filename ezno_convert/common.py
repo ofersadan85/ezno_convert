@@ -8,6 +8,7 @@ from typing import Optional, Collection
 VERSION = '0.0.5b1'
 DATE_FORMAT = '%Y%m%d-%H%M%S'
 here = Path(sys.executable if getattr(sys, 'frozen', False) else __file__)
+script_dir = here.parent if getattr(sys, 'frozen', False) else here.parent.parent
 
 
 def validate_paths(src: PathLike, dst: Optional[PathLike] = None, date_fmt: Optional[str] = None) -> tuple[Path, Path]:

@@ -5,7 +5,7 @@ from typing import Collection, Optional
 
 import wx
 
-from ezno_convert.common import DATE_FORMAT, VERSION, here
+from ezno_convert.common import DATE_FORMAT, VERSION, script_dir
 from ezno_convert.convert import WORD, PPT, XL, BatchConverter, WORDConverter, PPTConverter, XLConverter
 
 PDF = 'PDF'
@@ -35,17 +35,20 @@ class Progress(wx.ProgressDialog):
             style=wx.PD_CAN_ABORT | wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME | wx.PD_APP_MODAL | wx.PD_AUTO_HIDE
         )
         self.converters = converters
+        self.results = []  # type: list[tuple[int, Optional[Path]]]
 
-    def run(self):
+    def run(self) -> list[tuple[int, Optional[Path]]]:
         self.Show()
         for con_i, converter in enumerate(self.converters):
             app_name = converter.app.app.value.split('.')[0]
             for i, result in enumerate(converter):
+                self.results.append((i, result))
                 if isinstance(result, Path):
                     self.Update(i, f'Running {app_name} converter... ({con_i}/{len(self.converters)})')
                     if self.WasCancelled():
                         self.Destroy()
-                        return
+                        return self.results
+        return self.results
 
 
 class MainFrame(wx.Frame):
@@ -71,7 +74,7 @@ class MainFrame(wx.Frame):
         self.date_fmt = wx.TextCtrl(self.panel, value=DATE_FORMAT)
         self.reset_btn = wx.Button(self.panel, label='Reset settings')
         self.execute_btn = wx.Button(self.panel, label='Start Converting...')
-        img_path = str(here.parent / 'images/ezno-banner-wide.png')
+        img_path = str(script_dir / 'images/ezno-banner-wide.png')
         img = wx.Image(img_path, type=wx.BITMAP_TYPE_PNG).Rescale(500, 100).ConvertToBitmap()
         img = wx.StaticBitmap(self.panel, bitmap=img)
         grid = wx.GridBagSizer(10, 10)
@@ -100,7 +103,7 @@ class MainFrame(wx.Frame):
         self.save_select.Bind(wx.EVT_BUTTON, self.select_save_location)
         self.reset_btn.Bind(wx.EVT_BUTTON, self.reset)
         self.execute_btn.Bind(wx.EVT_BUTTON, self.validate)
-        self.SetIcon(wx.Icon(str(here.parent / 'images/ezno-icon.png')))
+        self.SetIcon(wx.Icon(str(script_dir / 'images/ezno-icon.png')))
         self.reset()
 
     def reset(self, event: Optional[wx.Event] = None):
@@ -163,18 +166,25 @@ class MainFrame(wx.Frame):
 
         kwargs = dict(src=src, dst=dst, recursive=self.recursive.GetValue(), date_fmt=date_fmt)
 
+        do_word = (self.word_check.GetValue() and src.is_dir) or (src.is_file() and src.suffix in WORD.extensions.value)
+        do_ppt = (self.ppt_check.GetValue() and src.is_dir) or (src.is_file() and src.suffix in PPT.extensions.value)
+        do_xl = (self.xl_check.GetValue() and src.is_dir) or (src.is_file() and src.suffix in XL.extensions.value)
         converters = []
-        if self.word_check.GetValue():
+        if do_word:
             converters.append(WORDConverter(target=getattr(WORD, self.word_fmt.GetValue(), None), **kwargs))
-        if self.ppt_check.GetValue():
+        if do_ppt:
             converters.append(PPTConverter(target=getattr(PPT, self.ppt_fmt.GetValue(), None), **kwargs))
-        if self.word_check.GetValue():
+        if do_xl:
             converters.append(XLConverter(target=getattr(XL, self.xl_fmt.GetValue(), None), **kwargs))
 
         if converters:
             self.Destroy()
             progress = Progress(converters)
-            progress.run()
+            results = progress.run()
+            failed = sum(1 for i, p in results if p is None)
+            success = sum(len(c) for c in progress.converters) - failed
+            message = f'Finished converting!\n{failed} item(s) failed\n{success} items converted'
+            wx.MessageDialog(progress, message, 'Done').ShowModal()
         else:
             ErrorDialog(self, 'Could not find any files to convert. Check your settings.')
             return
