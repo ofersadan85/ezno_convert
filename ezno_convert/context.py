@@ -12,7 +12,7 @@ reg_classes = (
     'Excel.Sheet.12',
     'PowerPoint.Show.12',
     'Directory',
-    'Directory\\Background',
+    # 'Directory\\Background',
 )
 
 gui_exe = here.with_name('eznoc-gui.exe').absolute()
