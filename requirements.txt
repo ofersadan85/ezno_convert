@@ -2,3 +2,4 @@ setuptools>=52.0.0
 wxPython>=4.1.1
 comtypes>=1.1.8
 wheel
+cx-Freeze>=6.5.3
